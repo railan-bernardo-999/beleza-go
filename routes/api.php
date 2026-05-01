@@ -10,7 +10,8 @@ Route::prefix('v1')->group(function () {
     // Rotas públicas
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-
+    Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+    Route::post('/resend-verification', [AuthController::class, 'resendVerification']);
     Route::get('/ping', function () {
         return response()->json(['message' => 'API online', 'timestamp' => now()]);
     });
