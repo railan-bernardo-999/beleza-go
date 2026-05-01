@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -32,7 +33,8 @@ use Laravel\Sanctum\HasApiTokens;
     'last_login_at',
     'account_status',
     'failed_login_attempts',
-    'locked_until'
+    'locked_until',
+    'role'
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -51,5 +53,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             // 'password' => 'hashed',
         ];
+    }
+
+    // Comunidades que o usuário participa
+    public function communities(): BelongsToMany
+    {
+        return $this->belongsToMany(Community::class, 'community_user')
+            ->withPivot(['role', 'joined_at', 'approved_at', 'invited_by'])
+            ->withTimestamps();
+    }
+
+    // Comunidades que o usuário é admin
+    public function adminCommunities(): BelongsToMany
+    {
+        return $this->communities()->wherePivot('role', 'admin');
+    }
+
+    // Comunidades que o usuário é dono
+    public function ownedCommunities()
+    {
+        return $this->hasMany(Community::class, 'owner_id');
     }
 }
